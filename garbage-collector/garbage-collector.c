@@ -242,28 +242,11 @@ void test_handle() {
 	freeVM(vm);
 }
 
-void perfTest() {
-	printf("Performance Test.\n");
-	VM* vm = newVM();
-
-	for (int i = 0; i < 1000; i++) {
-		for (int j = 0; j < 20; j++) {
-			pushInt(vm, i);
-		}
-
-		for (int k = 0; k < 20; k++) {
-			pop(vm);
-		}
-	}
-	freeVM(vm);
-}
-
 int main(int argc, const char * argv[]) {
 	test_preserve();
 	test_collect();
 	test_reach();
 	test_handle();
-	perfTest();
 
 	return 0;
 }
