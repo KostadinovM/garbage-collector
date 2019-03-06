@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
 #define STACK_MAX 256
 #define INITIAL_GC_THRESHOLD 10
 
@@ -47,6 +51,8 @@ typedef struct
 	int stackSize;
 } VM;
 
+void gc(VM* vm);
+
 //func that creates and initializes a new Virtual Machine
 VM* newVM() 
 {
@@ -67,10 +73,10 @@ void push(VM *vm, Object *value)
 }
 
 //stack manipulation - remove from the stack
-Object* pop(VM *vm) 
+Object* pop(VM* vm) 
 {
-	assert(vm->stackSize > 0, "STACK UNDERFLOW");
-	vm->stack[--vm->stackSize];
+	assert(vm->stackSize > 0, "Stack underflow!");
+	return vm->stack[--vm->stackSize];
 }
 
 //create objects - handle memory allocation and object type
@@ -85,6 +91,7 @@ Object* newObject(VM* vm, ObjectType type)
 	//add it to the list of allocated objects
 	object->next = vm->firstObject;
 	vm->firstObject = object;
+	object->marked = 0;
 
 	vm->numObjects++;
 	return object;
@@ -165,4 +172,98 @@ void gc(VM* vm)
 	sweep(vm);
 
 	vm->maxObjects = vm->numObjects * 2;
+
+	printf("Collected %d objects, %d remaining.\n", numObjects - vm->numObjects,
+		vm->numObjects);
+}
+
+void freeVM(VM *vm) {
+	vm->stackSize = 0;
+	gc(vm);
+	free(vm);
+}
+
+void test_preserve() {
+	printf("Test 1: Objects on stack are preserved.\n");
+	VM* vm = newVM();
+	pushInt(vm, 1);
+	pushInt(vm, 2);
+
+	gc(vm);
+	assert(vm->numObjects == 2, "Should have preserved objects.");
+	freeVM(vm);
+}
+
+void test_collect() {
+	printf("Test 2: Unreached objects are collected.\n");
+	VM* vm = newVM();
+	pushInt(vm, 1);
+	pushInt(vm, 2);
+	pop(vm);
+	pop(vm);
+
+	gc(vm);
+	assert(vm->numObjects == 0, "Should have collected objects.");
+	freeVM(vm);
+}
+
+void test_reach() {
+	printf("Test 3: Reach nested objects.\n");
+	VM* vm = newVM();
+	pushInt(vm, 1);
+	pushInt(vm, 2);
+	pushPair(vm);
+	pushInt(vm, 3);
+	pushInt(vm, 4);
+	pushPair(vm);
+	pushPair(vm);
+
+	gc(vm);
+	assert(vm->numObjects == 7, "Should have reached objects.");
+	freeVM(vm);
+}
+
+void test_handle() {
+	printf("Test 4: Handle cycles.\n");
+	VM* vm = newVM();
+	pushInt(vm, 1);
+	pushInt(vm, 2);
+	Object* a = pushPair(vm);
+	pushInt(vm, 3);
+	pushInt(vm, 4);
+	Object* b = pushPair(vm);
+
+	/* Set up a cycle, and also make 2 and 4 unreachable and collectible. */
+	a->tail = b;
+	b->tail = a;
+
+	gc(vm);
+	assert(vm->numObjects == 4, "Should have collected objects.");
+	freeVM(vm);
+}
+
+void perfTest() {
+	printf("Performance Test.\n");
+	VM* vm = newVM();
+
+	for (int i = 0; i < 1000; i++) {
+		for (int j = 0; j < 20; j++) {
+			pushInt(vm, i);
+		}
+
+		for (int k = 0; k < 20; k++) {
+			pop(vm);
+		}
+	}
+	freeVM(vm);
+}
+
+int main(int argc, const char * argv[]) {
+	test_preserve();
+	test_collect();
+	test_reach();
+	test_handle();
+	perfTest();
+
+	return 0;
 }

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gc.c">
+    <ClCompile Include="garbage-collector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
