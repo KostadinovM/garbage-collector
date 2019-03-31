@@ -1,8 +1,0 @@
-﻿  garbage-collector.c
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(71): warning C4002: too many arguments for function-like macro invocation 'assert'
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(78): warning C4002: too many arguments for function-like macro invocation 'assert'
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(193): warning C4002: too many arguments for function-like macro invocation 'assert'
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(206): warning C4002: too many arguments for function-like macro invocation 'assert'
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(222): warning C4002: too many arguments for function-like macro invocation 'assert'
-c:\users\mkost\source\repos\garbage-collector\garbage-collector\garbage-collector.c(241): warning C4002: too many arguments for function-like macro invocation 'assert'
-  garbage-collector.vcxproj -> C:\Users\mkost\source\repos\garbage-collector\Debug\garbage-collector.exe
